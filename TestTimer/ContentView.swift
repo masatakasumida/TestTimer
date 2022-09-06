@@ -18,13 +18,8 @@ struct ContentView: View {
     @State var setCountRemaining: Int = 2
     @State var timesCount: Int = 2
     @State var timesCountRemaining: Int = 2
-    @State var callCount: Int = 3
-    @State var callCountRemaining: Int = 3
     @State var timer: Timer?
     @State var start: Bool = false
-    @State var readyFlag: Bool = false
-    @State var trainingFlag: Bool = false
-    @State var intervalFlag: Bool = false
 
     var body: some View {
 
@@ -38,7 +33,7 @@ struct ContentView: View {
             HStack(spacing: 50) {
                 Text("Set:\(setCountRemaining)")
                     .padding()
-                Text("Times:\(callCountRemaining)")
+                Text("Times:\(timesCountRemaining)")
             }
             .padding()
             HStack(spacing: 50) {
@@ -68,7 +63,6 @@ struct ContentView: View {
     }
     func timerStart() {
         guard start else { return }
-        readyFlag = true
         if readyTimeRemaining > 0 {
             readyTimeRemaining -= 1
         } else if readyTimeRemaining == 0 && trainingTimeRemaining > 0 {
@@ -85,9 +79,6 @@ struct ContentView: View {
     }
     func timerReset() {
         start = false
-        readyFlag = false
-        trainingFlag = false
-        intervalFlag = false
         readyTimeRemaining = readyTime
         trainingTimeRemaining = trainingTime
         intervalTimeRemaining = intervalTime
