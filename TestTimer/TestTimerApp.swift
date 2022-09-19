@@ -11,7 +11,7 @@ import SwiftUI
 struct TestTimerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(defaultReadyTime: 3, defaultTrainingTime: 5, defaultIntervalTime: 3, defaultTimesCount: 2, defaultSetCount: 2)
         }
     }
 }

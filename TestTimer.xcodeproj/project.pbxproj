@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6937C74928D8817200455B69 /* TimerStasus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6937C74828D8817100455B69 /* TimerStasus.swift */; };
 		69403FC828B38E450007F809 /* TestTimerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69403FC728B38E450007F809 /* TestTimerApp.swift */; };
 		69403FCA28B38E450007F809 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69403FC928B38E450007F809 /* ContentView.swift */; };
 		69403FCC28B38E470007F809 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69403FCB28B38E470007F809 /* Assets.xcassets */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6937C74828D8817100455B69 /* TimerStasus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerStasus.swift; sourceTree = "<group>"; };
 		69403FC428B38E450007F809 /* TestTimer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestTimer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		69403FC728B38E450007F809 /* TestTimerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTimerApp.swift; sourceTree = "<group>"; };
 		69403FC928B38E450007F809 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			children = (
 				69403FC728B38E450007F809 /* TestTimerApp.swift */,
 				69403FC928B38E450007F809 /* ContentView.swift */,
+				6937C74828D8817100455B69 /* TimerStasus.swift */,
 				69403FCB28B38E470007F809 /* Assets.xcassets */,
 				69403FCD28B38E470007F809 /* Preview Content */,
 			);
@@ -137,7 +140,6 @@
 				69403FC028B38E450007F809 /* Sources */,
 				69403FC128B38E450007F809 /* Frameworks */,
 				69403FC228B38E450007F809 /* Resources */,
-				6939F7B328C6A9F4001B3F9C /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -253,33 +255,13 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		6939F7B328C6A9F4001B3F9C /* Run Script */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		69403FC028B38E450007F809 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				69403FCA28B38E450007F809 /* ContentView.swift in Sources */,
+				6937C74928D8817200455B69 /* TimerStasus.swift in Sources */,
 				69403FC828B38E450007F809 /* TestTimerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

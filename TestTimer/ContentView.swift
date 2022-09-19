@@ -8,49 +8,81 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var trainingTime: Int = 3
-    @State var trainingTimeRemaining: Int = 3
-    @State var readyTime: Int = 3
-    @State var readyTimeRemaining: Int = 3
-    @State var intervalTime: Int = 3
-    @State var intervalTimeRemaining: Int = 3
-    @State var setCount: Int = 2
-    @State var setCountRemaining: Int = 2
-    @State var timesCount: Int = 2
-    @State var timesCountRemaining: Int = 2
+    // デフォルトのカウント
+    let defaultReadyTime: Int
+    let defaultTrainingTime: Int
+    let defaultIntervalTime: Int
+    let defaultTimesCount: Int
+    let defaultSetCount: Int
+
+    // 残りのカウント
+    @State var readyTimeRemaining: Int
+    @State var trainingTimeRemaining: Int
+    @State var intervalTimeRemaining: Int
+    @State var trainingCountRemaining: Int
+    @State var setCountRemaining: Int
+    // タイマー
     @State var timer: Timer?
-    @State var start: Bool = false
+    @State var timerStatus: TimerStatus = .paused
+    @State var timerFlow: TimerFlow = .trainingTime // 初期ディスプレイ表示用
+    let notificationCenterDefault = NotificationCenter.default
+
+    init(defaultReadyTime: Int, defaultTrainingTime: Int, defaultIntervalTime: Int, defaultTimesCount: Int, defaultSetCount: Int) {
+        self.defaultReadyTime = defaultReadyTime
+        self.defaultTrainingTime = defaultTrainingTime
+        self.defaultIntervalTime = defaultIntervalTime
+        self.defaultTimesCount = defaultTimesCount
+        self.defaultSetCount = defaultSetCount
+
+        readyTimeRemaining = defaultReadyTime
+        trainingTimeRemaining = defaultTrainingTime
+        intervalTimeRemaining = defaultIntervalTime
+        trainingCountRemaining = defaultTimesCount
+        setCountRemaining = defaultSetCount
+    }
 
     var body: some View {
-
         VStack {
-            Text("ReadyCount:\(readyTimeRemaining)")
+            timerFlow.text
+                .font(.largeTitle)
+                .foregroundColor(timerFlow.colorChange(number: trainingTimeRemaining))
                 .padding()
-            Text("TrainingCount:\(trainingTimeRemaining)")
-                .padding()
-            Text("intervalCount:\(intervalTimeRemaining)")
+            Text(String(setupNumber()))
+                .font(.largeTitle)
+                .foregroundColor(timerFlow.colorChange(number: trainingTimeRemaining))
                 .padding()
             HStack(spacing: 50) {
                 Text("Set:\(setCountRemaining)")
                     .padding()
-                Text("Times:\(timesCountRemaining)")
+                Text("Times:\(trainingCountRemaining)")
+                    .padding()
             }
             .padding()
+
             HStack(spacing: 50) {
                 Button(action: {
-                    start.toggle()
-                    switch start {
-                    case true:
-                        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                    //ボタンの切り替え
+                    timerStatus.switchStatus()
+
+                    switch timerStatus {
+                    case .inProgress:
+                        // 一時停止から再開した時readyTimeから走らせないように
+                        if readyTimeRemaining > 0 {
+                            timerFlow = .readyTime
+                        }
+
+                        timer = Timer.scheduledTimer(withTimeInterval: 1.0,
+                                                     repeats: true) { _ in
+
                             timerStart()
                         }
-                    case false:
+                    case .paused:
                         timer?.invalidate()
                     }
-
                 }) {
-                    start ? Text("一時停止") : Text("開始")
+                    timerStatus.text
                 }
+
                 Button(action: {
                     timerReset()
                     timer?.invalidate()
@@ -61,34 +93,88 @@ struct ContentView: View {
             }
         }
     }
+
     func timerStart() {
-        guard start else { return }
-        if readyTimeRemaining > 0 {
+        guard timerStatus == .inProgress else { return }
+        switch timerFlow {
+        case .readyTime:
+
             readyTimeRemaining -= 1
-        } else if readyTimeRemaining == 0 && trainingTimeRemaining > 0 {
+            if readyTimeRemaining < 1 {
+                timerFlow = .trainingTime
+            }
+        case .trainingTime:
 
             trainingTimeRemaining -= 1
-        } else if trainingTimeRemaining == 0 && intervalTimeRemaining > 0 {
+            if trainingTimeRemaining < 1 {
+                timerFlow = .intervalTime
+            }
+        case .intervalTime:
             intervalTimeRemaining -= 1
-        }
-        if intervalTimeRemaining == 0 {
-            if timesCountRemaining > 0 {
-                timesCountRemaining -= 1
+            if intervalTimeRemaining < 1 { //インターバルタイマーが0ならトレーニングカウントダウン中に戻る
+                trainingCountRemaining -= 1
+                configureTrainingSet()
+                timerFlow = .trainingTime
+                if trainingCountRemaining < 1 { //回数が0ならセット数を減らす
+                    setCountRemaining -= 1
+                    trainingCountRemaining = defaultTimesCount
+                    timerFlow = .trainingTime
+                    if setCountRemaining < 1 { //セット数が0なら終了処理へ
+                        timerReset()
+                    }
+                }
             }
         }
     }
-    func timerReset() {
-        start = false
-        readyTimeRemaining = readyTime
-        trainingTimeRemaining = trainingTime
-        intervalTimeRemaining = intervalTime
-        timesCountRemaining = timesCount
-        setCountRemaining = setCount
+
+    private func timerReset() {
+        timerStatus.paused()
+        timer?.invalidate()
+        initializeTrainingSet()
+    }
+
+    private func configureTrainingSet() {
+        trainingTimeRemaining = defaultTrainingTime
+        intervalTimeRemaining = defaultIntervalTime
+    }
+
+    //トレーニングのカウントをイニシャライズ（初期化）
+    private func initializeTrainingSet() {
+        readyTimeRemaining = defaultReadyTime
+        trainingTimeRemaining = defaultTrainingTime
+        intervalTimeRemaining = defaultIntervalTime
+        trainingCountRemaining = defaultTimesCount
+        setCountRemaining = defaultSetCount
+        timerFlow = .trainingTime
+    }
+
+    private func stopTimerInAppBackground() {
+        //バックグラウンドに移った場合はリセット
+        notificationCenterDefault
+            .addObserver(
+                forName: UIApplication.willResignActiveNotification,
+                object: nil,
+                queue: nil
+            ) { [self] _ in
+                self.timerStatus.paused()
+                self.timer?.invalidate()
+            }
+    }
+
+    func setupNumber() -> Int {
+        switch timerFlow {
+        case .readyTime:
+            return readyTimeRemaining
+        case .trainingTime:
+            return trainingTimeRemaining
+        case .intervalTime:
+            return intervalTimeRemaining
+        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(defaultReadyTime: 3, defaultTrainingTime: 5, defaultIntervalTime: 3, defaultTimesCount: 2, defaultSetCount: 2)
     }
 }
